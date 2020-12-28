@@ -2,11 +2,172 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-	<title>首页</title>
+	<title>JSON树生成</title>
+	<meta name="keywords"  content="json,树结构,json转换,生成json树" />
+	<meta name="description" content="JSON树生成" />
+	<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+	<!-- 引入样式 -->
+	<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+	<!-- 引入组件库 -->
+	<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+	<style>
+		.mgtop{
+			margin-top: 20px;
+		}
+	</style>
 </head>
 <body>
-	<div>
-		<h1>这是首页</h1>
+	<div id="app">
+		<div>
+			<el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal">
+			  <el-menu-item index="1">生成JSON树</el-menu-item>
+			  <el-submenu index="2">
+			    <template slot="title">待开发</template>
+			    <el-menu-item index="2-1">选项1</el-menu-item>
+			    <el-menu-item index="2-2">选项2</el-menu-item>
+			    <el-menu-item index="2-3">选项3</el-menu-item>
+			    <el-submenu index="2-4">
+			      <template slot="title">选项4</template>
+			      <el-menu-item index="2-4-1">选项1</el-menu-item>
+			      <el-menu-item index="2-4-2">选项2</el-menu-item>
+			      <el-menu-item index="2-4-3">选项3</el-menu-item>
+			    </el-submenu>
+			  </el-submenu>
+			</el-menu>
+		</div>
+		<div class="container mgtop">
+			<el-input
+			  placeholder="请输入根节点名"
+			  v-model="root_name">
+			</el-input>
+			<el-input
+				class="mgtop"
+			  type="textarea"
+			  :rows="5"
+			  placeholder="请输入文本"
+			  v-model="content">
+			</el-input>
+			<el-button type="primary" class="mgtop" @click="ClickBuild()">生成Json树</el-button>
+			<el-input
+			  class="mgtop"
+			  type="textarea"
+			  :rows="5"
+			  placeholder="结果"
+			  v-model="content2">
+			</el-input>
+		</div>
+		<div class="mgtop">
+			说明：将文本转化为json树结构
+			输入文本格式如下：
+			<div>
+			<pre>
+车身内外饰件	车门及附件	玻璃升降器
+车身内外饰件	车门及附件	车门
+车身内外饰件	车门及附件	车门限位器
+车身内外饰件	车门及附件	车门装饰板
+车身内外饰件	车门及附件	车锁
+车身内外饰件	车门及附件	铰链
+车身内外饰件	车门及附件	门板加强筋
+车身内外饰件	车门及附件	门玻璃导轨
+车身内外饰件	车门及附件	门锁机构
+车身内外饰件	车门及附件	其他
+车身内外饰件	车身本体白车身	侧围
+车身内外饰件	车身本体白车身	车顶盖
+车身内外饰件	车身本体白车身	发动机盖
+车身内外饰件	车身本体白车身	发动机盖撑杆
+车身内外饰件	车身本体白车身	行李箱盖/尾门
+车身内外饰件	车身本体白车身	驾驶室
+车身内外饰件	车身本体白车身	尾门撑杆
+车身内外饰件	车身本体白车身	翼子板
+车身内外饰件	车身本体白车身	其他
+车身内外饰件	内饰件	把手&拉手
+车身内外饰件	内饰件	地毯
+车身内外饰件	内饰件	顶棚
+车身内外饰件	内饰件	扶手箱
+车身内外饰件	内饰件	隔热板&减震垫
+车身内外饰件	内饰件	脚垫
+车身内外饰件	内饰件	空调控制面板
+车身内外饰件	内饰件	排挡头
+车身内外饰件	内饰件	踏板
+车身内外饰件	内饰件	通风口
+车身内外饰件	内饰件	仪表板
+车身内外饰件	内饰件	杂物箱
+车身内外饰件	内饰件	坐垫
+车身内外饰件	内饰件	其他
+车身内外饰件	外饰件	保险杠
+车身内外饰件	外饰件	备胎架
+			</pre>
+			</div>
+		</div>
 	</div>
 </body>
+<script>
+	var app=new Vue({
+		el:"#app",
+		data:{
+			activeIndex:'1',
+			content:'',
+			content2:'',
+			root_name:'',
+		},
+		methods:{
+			ClickBuild:function(){
+				if (this.root_name==''){
+					this.$alert('请输入根节点名');
+		            return;
+				}
+				if (this.content==''){
+					this.$alert('请输入文本');
+		            return;
+				}
+				var str=this.content;
+				var obj={name:'汽车',id:1,layer:1,children:[]};
+			    var cur0={};
+			    var cur1={};
+			    var cur2={};
+			    var arr1=str.split('\n');
+			    for (var i = 0; i < arr1.length; i++) {
+			        var arr2=arr1[i].split('\t');
+			        if (arr2.length==1){
+			        	arr2=arr1[i].split(' ');
+			        }
+			        if (arr2[0]!=undefined&&arr2[0]!=''){
+			            if (cur0.name!=arr2[0]){
+			                cur0={
+			                    name:arr2[0],
+			                    id:(2+i),
+			                    layer:2,
+			                    children:[]
+			                };
+			                obj.children.push(cur0);
+			            }
+			        }
+			        if (arr2[1]!=undefined&&arr2[1]!=''){
+			            if (cur1.name!=arr2[1]){
+			                cur1={
+			                    name:arr2[1],
+			                    id:(2+i+1000),
+			                    layer:3,
+			                    children:[]
+			                };
+			                cur0.children.push(cur1);
+			            }
+			        }
+			        if (arr2[2]!=undefined&&arr2[2]!=''){
+			            if (cur2.name!=arr2[2]){
+			                cur2={
+			                    name:arr2[2],
+			                    id:(2+i+10000),
+			                    layer:4,
+			                    children:[]
+			                };
+			                cur1.children.push(cur2);
+			            }
+			        }
+			    };
+			    this.content2=JSON.stringify(obj);
+			}
+		}
+	})
+</script>
 </html>
